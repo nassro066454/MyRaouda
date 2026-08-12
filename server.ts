@@ -3,7 +3,7 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { createServer as createViteServer } from 'vite';
-import { getDb, queryAll, queryOne, executeSql, logAudit, saveDb, resetDatabase, createNotification, syncSystemNotifications } from './src/server/db';
+import { getDb, queryAll, queryOne, executeSql, logAudit, saveDb, resetDatabase, createNotification, syncSystemNotifications, syncWithPostgres } from './src/server/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rawda_secret_key_kindergarten_2026';
 const PORT = 3000;
@@ -53,8 +53,13 @@ async function startServer() {
   // Wait for DB initialization
   const db = await getDb();
 
-  // Helper middleware to ensure DB is initialized
-  app.use((req, res, next) => {
+  // Helper middleware to ensure DB is initialized and synced with cloud Postgres
+  app.use(async (req, res, next) => {
+    try {
+      await syncWithPostgres();
+    } catch (err) {
+      console.error('Error syncing with Postgres:', err);
+    }
     next();
   });
 
@@ -338,7 +343,7 @@ async function startServer() {
   // -------------------------------------------------------------
   // SETTINGS API
   // -------------------------------------------------------------
-  app.get('/api/settings', authenticateToken, (req: AuthRequest, res: Response) => {
+  app.get('/api/settings', (req: Request, res: Response) => {
     try {
       const settings = queryOne(db, 'SELECT * FROM settings ORDER BY id ASC LIMIT 1');
       res.json({ settings });
