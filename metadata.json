@@ -1,0 +1,6 @@
+{
+  "name": "نظام إدارة الروضة الاحترافي",
+  "description": "نظام متكامل لإدارة رياض الأطفال باللغة العربية يشمل إدارة الأطفال، أولياء الأمور، الفصول، الحضور، الاشتراكات، المدفوعات، والملاحظات الصحية والتقارير.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
